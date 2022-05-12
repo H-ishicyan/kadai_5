@@ -1,0 +1,62 @@
+<h2>地図検索アプリ</h2>
+<input id="address" type="textbox" value="">
+<input type="button" value="送信" onclick="codeAddress()">
+<div id="latlngDisplay">ここに緯度、経緯が表示される</div>
+<div id="addressDisplay">ここに住所が表示される</div>
+<div id="map"></div>
+
+<style>
+#map{
+  height: 600px;
+  width: 600px;
+  ckground-color: red;
+}
+</style>
+<script>
+  const latlngDis = document.getElementById('latlngDisplay')
+  const addressDis = document.getElementById('addressDisplay')
+
+  function initMap(){
+  
+    tokyo = {lat: 35.6803997, lng: 139.7690174}
+  
+    map = new google.maps.Map(document.getElementById('map'), {
+      center: tokyo,
+      zoom: 12,
+    });
+  
+    marker = new google.maps.Marker({
+      position: tokyo,
+      map: map
+    });
+  }
+
+  function codeAddress(){
+  geocoder = new google.maps.Geocoder();
+
+  inputAddress = document.getElementById('address').value;
+
+  geocoder.geocode({ 'address': inputAddress}, function(results, status){
+    if (status == 'OK') {
+      map.setCenter(results[0].geometry.location);
+      marker = new google.maps.Marker({
+        position: results[0].geometry.location,
+        map: map,
+        
+      });
+      latlngDis.innerHTML = results[0].geometry.location;
+
+      geocoder.geocode({ 'location': marker.getPosition()}, function(results, status) {
+        if (status == "OK"){
+          addressDis.innerHTML = results[0].formatted_address;
+        } else {
+          alert("Geocode 取得に失敗しました：" + status);
+        }
+      });
+    } else {
+      alert("該当する結果がありませんでした：" + status);
+    }
+  });
+}
+  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBf7caDUYxzhWRR0DCUh-XhN493lLK7-R0&callback=initMap" async defer></script>
